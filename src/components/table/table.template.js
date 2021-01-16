@@ -1,14 +1,29 @@
-const CODES = {
+const CODES = { // начальный и конечный коды символов
   A: 65,
   Z: 90
 }
 
 // eslint-disable-next-line no-unused-vars
-function toCell(_, col) {
-  return `
-    <div class="cell" contenteditable data-col="${col}"></div>
-  `
+// function toCell(row, col) {
+//   return `
+//     <div class="cell" contenteditable data-col="${col}"
+//     data-row="${row}"></div>
+//   `
+// }
+
+function toCell(row) {
+  return function(_, col) {
+    return `
+        <div class="cell"
+            contenteditable
+            data-col="${col}"
+            data-type="cell"
+            data-id="${row}:${col}"
+        ></div>
+        `
+  }
 }
+
 // eslint-disable-next-line no-unused-vars
 function toColumn(col, index) {
   return `
@@ -28,9 +43,11 @@ function createRow(index, content) {
         <div class="row-data">${content}</div>
     </div>`
 }
+
 function toChar(_, index) {
   return String.fromCharCode(CODES.A + index)
 }
+
 export function createTable(rowsCount = 15) {
   const colsCount = CODES.Z - CODES.A + 1
   const rows = []
@@ -42,16 +59,20 @@ export function createTable(rowsCount = 15) {
   //      return createCol(el)
   //    }).join('')
 
-  const cols = new Array(colsCount)
-      .fill('')
+  const cols = new Array(colsCount) // Создаем новый массмв
+      .fill('') // Заполняем его пустыми значениями
       .map(toChar)
       .map(toColumn).join('')
 
   rows.push(createRow(null, cols))
 
-  for ( let i = 0; i < rowsCount; i++ ) {
-    const cells = new Array(colsCount).fill('').map(toCell).join('')
-    rows.push(createRow(i + 1, cells))
+  for ( let row = 0; row < rowsCount; row++ ) {
+    const cells = new Array(colsCount)
+        .fill('')
+        // .map((_, col) => toCell(row, col))
+        .map(toCell(row))
+        .join('')
+    rows.push(createRow(row + 1, cells))
   }
 
   return rows.join('')
